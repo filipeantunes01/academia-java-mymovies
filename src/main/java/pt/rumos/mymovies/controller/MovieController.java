@@ -1,8 +1,13 @@
 package pt.rumos.mymovies.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import pt.rumos.mymovies.dto.MovieRequest;
+import pt.rumos.mymovies.dto.MovieResponse;
 import pt.rumos.mymovies.model.Movie;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -10,7 +15,7 @@ import java.util.List;
 public class MovieController {
 
     // Lista fixa em memória com 22 filmes para testes e validação
-    private final List<Movie> movies = List.of(
+    private final List<Movie> movies = new ArrayList<>(List.of(
             new Movie(1L, "Interstellar", "Christopher Nolan", 2014),
             new Movie(2L, "The Matrix", "Lana & Lilly Wachowski", 1999),
             new Movie(3L, "Inception", "Christopher Nolan", 2010),
@@ -32,13 +37,25 @@ public class MovieController {
             new Movie(19L, "Dune: Part Two", "Denis Villeneuve", 2024),
             new Movie(20L, "Oppenheimer", "Christopher Nolan", 2023),
             new Movie(21L, "Avatar", "James Cameron", 2009)
-    );
+    ));
 
+    private long nextMovieId = 22L;
+
+    /* ---------------- */
+    /* ----- GET -----  */
+    /* ---------------- */
+
+    // Retornar todos
     @GetMapping
-    public List<Movie> listAll() {
-        return movies;
+    public ResponseEntity<List<MovieResponse>> listAll() {
+        List<MovieResponse> response = movies.stream()
+                .map(m -> MovieResponse.fromDomain(m))
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 
+    // Pesquisa por ID com parâmetro de caminho / URI
     @GetMapping("/{id}")
     public Movie getById(@PathVariable Long id) {
         return movies.stream()
@@ -47,6 +64,7 @@ public class MovieController {
                 .orElse(null);
     }
 
+    // Pesquisa por parâmetro de consulta / query string params
     @GetMapping("/search")
     public List<Movie> searchByTitle(@RequestParam(required = false) String title) {
         if (title == null || title.isBlank()) {
@@ -58,5 +76,30 @@ public class MovieController {
         return movies.stream()
                 .filter(m -> m.title().toLowerCase().contains(term))
                 .toList();
+    }
+
+
+    /* ----------------- */
+    /* ----- POST ----- */
+    /* ----------------- */
+
+    @PostMapping
+    public ResponseEntity<MovieResponse> create(
+            @Valid @RequestBody MovieRequest request
+    ) {
+        Long newId = nextMovieId++;
+
+        Movie newMovie = new Movie(
+                newId,
+                request.title(),
+                request.director(),
+                request.year()
+        );
+
+        movies.add(newMovie);
+
+        MovieResponse response = MovieResponse.fromDomain(newMovie);
+
+        return ResponseEntity.status(201).body(response);
     }
 }
