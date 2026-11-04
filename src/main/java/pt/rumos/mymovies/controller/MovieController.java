@@ -34,19 +34,11 @@ public class MovieController {
             new Movie(21L, "Avatar", "James Cameron", 2009)
     );
 
-    /**
-     * Endpoint 1: Retorna todos os filmes cadastrados.
-     * HTTP GET /api/movies
-     */
     @GetMapping
     public List<Movie> listAll() {
         return movies;
     }
 
-    /**
-     * Endpoint 2: Busca um filme individual pelo seu ID.
-     * HTTP GET /api/movies/{id}
-     */
     @GetMapping("/{id}")
     public Movie getById(@PathVariable Long id) {
         return movies.stream()
@@ -55,16 +47,14 @@ public class MovieController {
                 .orElse(null);
     }
 
-    /**
-     * Endpoint 3: Busca filmes por parte do título (case-insensitive).
-     * HTTP GET /api/movies/search?title=matrix
-     */
     @GetMapping("/search")
     public List<Movie> searchByTitle(@RequestParam(required = false) String title) {
         if (title == null || title.isBlank()) {
             return movies;
         }
+
         String term = title.trim().toLowerCase();
+
         return movies.stream()
                 .filter(m -> m.title().toLowerCase().contains(term))
                 .toList();
