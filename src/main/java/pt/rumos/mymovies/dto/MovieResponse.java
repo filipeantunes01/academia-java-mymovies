@@ -12,11 +12,11 @@ public record MovieResponse(
 
     public static MovieResponse fromDomain(Movie movie) {
         return new MovieResponse(
-                movie.id(),
-                movie.title(),
-                movie.director(),
-                movie.year(),
-                movie.rating()
+                movie.getId(),
+                movie.getTitle(),
+                movie.getDirector(),
+                movie.getYear(),
+                movie.getRating()
         );
     }
 }
