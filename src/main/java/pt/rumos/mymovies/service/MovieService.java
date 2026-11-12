@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pt.rumos.mymovies.dto.MovieRequest;
 import pt.rumos.mymovies.dto.MovieResponse;
 import pt.rumos.mymovies.dto.RatingUpdateRequest;
+import pt.rumos.mymovies.exception.MovieNotFoundException;
 import pt.rumos.mymovies.model.Movie;
 import pt.rumos.mymovies.repository.MovieRepository;
 import java.util.List;
@@ -33,12 +34,13 @@ public class MovieService {
 
     // Procurar por ID
     @Transactional(readOnly = true)
-    public Optional<MovieResponse> findById(Long id) {
-        Optional<Movie> result = repository.findById(id);
+    public MovieResponse findById(Long id) {
 
-        Optional<MovieResponse> response = result.map(m -> MovieResponse.fromDomain(m));
+        Movie result = repository
+                        .findById(id)
+                        .orElseThrow(() -> new MovieNotFoundException(id));
 
-        return response;
+        return MovieResponse.fromDomain(result);
     }
 
     // Procurar por título

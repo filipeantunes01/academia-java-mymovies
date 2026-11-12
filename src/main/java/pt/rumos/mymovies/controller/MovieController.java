@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
+
+import pt.rumos.mymovies.model.Movie;
 import pt.rumos.mymovies.service.MovieService;
 import pt.rumos.mymovies.dto.MovieRequest;
 import pt.rumos.mymovies.dto.MovieResponse;
@@ -39,13 +41,7 @@ public class MovieController {
     @GetMapping("/{id}")
     public ResponseEntity<MovieResponse> getById(@PathVariable Long id) {
 
-        Optional<MovieResponse> response = service.findById(id);
-
-        if (response.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(response.get());
+        return ResponseEntity.ok(service.findById(id));
     }
 
 
