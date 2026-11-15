@@ -1,7 +1,11 @@
 package pt.rumos.mymovies.controller;
 
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
@@ -20,6 +24,7 @@ import java.util.Optional;
 public class MovieController {
 
     private final MovieService service;
+    private static final Logger log = LoggerFactory.getLogger(MovieController.class);
 
     public MovieController(MovieService service) {
         this.service = service;
@@ -96,7 +101,12 @@ public class MovieController {
     @PatchMapping("/{id}/rating")
     public ResponseEntity<MovieResponse> updateRating(
             @PathVariable Long id,
-            @Valid @RequestBody RatingUpdateRequest request) {
+            @Valid @RequestBody RatingUpdateRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        String userId = jwt.getSubject();
+
+        log.info("Avaliação recebida de {} para o filme {}", userId, id);
 
         Optional<MovieResponse> updated = service.updateRating(id, request);
 
